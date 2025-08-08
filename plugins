@@ -1,1 +1,37 @@
+const fbDownloader = require('fb-video-downloader');
+
+module.exports = (sock) => {
+  sock.ev.on('messages.upsert', async ({ messages }) => {
+    const msg = messages[0];
+    if (!msg.message || !msg.message.conversation) return;
+
+    const text = msg.message.conversation.trim();
+    const from = msg.key.remoteJid;
+
+    // Detecta comando fb con link
+    if (text.startsWith('/fb ')) {
+      const url = text.split(' ')[1];
+      if (!url || !url.includes('facebook.com')) {
+        await sock.sendMessage(from, { text: 'Por favor envía un enlace válido de Facebook.' });
+        return;
+      }
+
+      await sock.sendMessage(from, { text: '⏳ Descargando video...' });
+
+      try {
+        const info = await fbDownloader.getInfo(url);
+        // info.videoUrls contiene las URLs disponibles, escogemos la de mayor calidad
+        const videoUrl = info.videoUrls.sort((a, b) => b.quality - a.quality)[0].url;
+
+        await sock.sendMessage(from, {
+          video: { url: videoUrl },
+          caption: 'Aquí tienes tu video de Facebook 🎥',
+        });
+      } catch (err) {
+        console.error('Error al descargar video de FB:', err);
+        await sock.sendMessage(from, { text: '❌ No se pudo descargar el video. Intenta otro enlace.' });
+      }
+    }
+  });
+};
 
