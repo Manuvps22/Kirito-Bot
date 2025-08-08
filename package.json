@@ -13,7 +13,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    ""@whiskeysockets/baileys": "^6.7.4"
+    "@whiskeysockets/baileys": "^6.7.4"
 ,
     "fb-video-downloader": "^1.0.4"
   }
