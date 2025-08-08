@@ -1,0 +1,9 @@
+const { useSingleFileAuthState } = require('@whiskeysockets/baileys');
+const { state, saveState } = useSingleFileAuthState('./auth/session.json');
+
+const sock = makeWASocket({
+  auth: state,
+  // ...
+});
+
+sock.ev.on('creds.update', saveState);
